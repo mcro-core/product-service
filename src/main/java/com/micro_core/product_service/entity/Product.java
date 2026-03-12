@@ -50,4 +50,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<PriceHistory> priceHistories;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "discount_id", referencedColumnName = "id")
+    private Discount discount;
+
 }
