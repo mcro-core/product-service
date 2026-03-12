@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +27,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductServiceImpl implements ProductService {
+
     private final ProductRepo productRepo;
+    private final WebClient.Builder webClientBuilder;
 
     @Override
     @Transactional
@@ -54,6 +57,16 @@ public class ProductServiceImpl implements ProductService {
         }
         Product savedProduct =  productRepo.save(product);
         log.info("Product and {} images saves successfully!", images != null ? images.size() : 0);
+
+        webClientBuilder.build().post()
+                .uri("http://inventory-service/api/v1/inventory/update-stock",
+                        uriBuilder -> uriBuilder
+                                .queryParam("skuCode", requestProductDto.getSkuCode())
+                                .queryParam("quantity", requestProductDto.getQuantity())
+                                .build())
+                .retrieve()
+                .bodyToMono(void.class)
+                .block();
         return this.mapToResponseDto(savedProduct);
     }
 
@@ -99,14 +112,14 @@ public class ProductServiceImpl implements ProductService {
 
     private ResponseProductDto mapToResponseDto(Product product){
         return ResponseProductDto.builder()
-                .productId(product.getProductId())
+                .productId(product.getId())
                 .productName(product.getProductName())
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .skuCode(product.getSkuCode())
                 .productImages(product.getImages().stream()
                         .map(img -> ResponseProductImageDto.builder()
-                                .imageId(img.getImageId())
+                                .imageId(img.getId())
                                 .base64Image(Base64.getEncoder().encodeToString(img.getImage()))
                                 .build())
                         .collect(Collectors.toList()))

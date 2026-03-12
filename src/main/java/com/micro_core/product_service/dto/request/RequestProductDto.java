@@ -14,4 +14,5 @@ public class RequestProductDto {
     private String description;
     private BigDecimal price;
     private String skuCode;
+    private Integer quantity;
 }

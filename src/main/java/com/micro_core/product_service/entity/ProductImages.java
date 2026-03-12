@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Lazy;
 
 @Entity
-@Table(name = "product")
+@Table(name = "product_image")
 @Builder
 @Data
 @AllArgsConstructor
@@ -16,14 +16,13 @@ import org.apache.logging.log4j.util.Lazy;
 public class ProductImages {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ïd")
-    private Long imageId;
+    private Long id;
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] image;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_name", referencedColumnName = "id")
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
     private  Product product;
 }
