@@ -16,5 +16,6 @@ public interface ProductService {
     public void delete(Long productId);
     public Page<ResponseProductDto> getAllProducts(int page, int size);
     public ResponseProductDto getProductById(Long productId);
+    public boolean addDiscountToProduct(Long productId, Long discountId);
 
 }

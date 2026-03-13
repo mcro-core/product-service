@@ -5,6 +5,7 @@ import com.micro_core.product_service.dto.response.ResponseProductDto;
 import com.micro_core.product_service.service.ProductService;
 import jakarta.ws.rs.PUT;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.protocol.HTTP;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,6 +62,17 @@ public class ProductController {
         ResponseProductDto responseProductDto = productService.getProductById(productId);
         return new ResponseEntity<>(responseProductDto, HttpStatus.OK);
 
+    }
+
+    @PostMapping("/discount")
+    public ResponseEntity<String> addDiscountToProduct(Long productId, Long discountId){
+        boolean response =  productService.addDiscountToProduct(productId, discountId);
+
+        if(response){
+            return ResponseEntity.ok("Discount successfully added!");
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to add discount. Please check Ids.");
+        }
     }
 
 

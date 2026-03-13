@@ -1,6 +1,7 @@
 package com.micro_core.product_service.dto.response;
 
 import com.micro_core.product_service.entity.Product;
+import com.micro_core.product_service.enums.DiscountType;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ public class DiscountResponseDto {
     private Long id;
     private String description;
     private BigDecimal discountValue;
-    private String discountType;
+    private DiscountType discountType;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private boolean isActive;

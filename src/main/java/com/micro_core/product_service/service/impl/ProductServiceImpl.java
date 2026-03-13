@@ -1,11 +1,16 @@
 package com.micro_core.product_service.service.impl;
 
+import com.micro_core.product_service.dto.request.RequestPriceHistoryDto;
 import com.micro_core.product_service.dto.request.RequestProductDto;
 import com.micro_core.product_service.dto.response.ResponseProductDto;
 import com.micro_core.product_service.dto.response.ResponseProductImageDto;
+import com.micro_core.product_service.entity.Discount;
 import com.micro_core.product_service.entity.Product;
 import com.micro_core.product_service.entity.ProductImages;
+import com.micro_core.product_service.enums.DiscountType;
 import com.micro_core.product_service.repo.ProductRepo;
+import com.micro_core.product_service.service.DiscountService;
+import com.micro_core.product_service.service.PriceHistoryService;
 import com.micro_core.product_service.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -30,6 +36,8 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepo productRepo;
     private final WebClient.Builder webClientBuilder;
+    private final PriceHistoryService priceHistoryService;
+    private final DiscountService discountService;
 
     @Override
     @Transactional
@@ -71,12 +79,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ResponseProductDto update(RequestProductDto requestProductDto, Long productId) {
             Product existingProduct = this.findProduct(productId);
 
+            BigDecimal currentPrice = existingProduct.getPrice();
+            BigDecimal newPrice = requestProductDto.getPrice();
+
+            if(currentPrice.compareTo(newPrice) != 0){
+                priceHistoryService.createPriceHistory(RequestPriceHistoryDto.builder()
+                                .productId(productId)
+                                .newPrice(newPrice)
+                                .olderPrice(currentPrice)
+                                .build());
+            }
+
             existingProduct.setProductName(requestProductDto.getProductName());
             existingProduct.setDescription(requestProductDto.getDescription());
-            existingProduct.setPrice(requestProductDto.getPrice());
+            existingProduct.setPrice(newPrice);
             existingProduct.setSkuCode(requestProductDto.getSkuCode());
 
             Product updatedProduct =  productRepo.save(existingProduct);
@@ -105,10 +125,22 @@ public class ProductServiceImpl implements ProductService {
         return this.mapToResponseDto(product);
     }
 
+    @Override
+    public boolean addDiscountToProduct(Long productId, Long discountId) {
+        Product product = findProduct(productId);
+        Discount discount = discountService.getDiscount(discountId);
+
+        product.setDiscount(discount);
+
+        productRepo.save(product);
+        return true;
+    }
+
     private Product findProduct(Long productId){
         return productRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found with id" + productId));
     }
+
 
     private ResponseProductDto mapToResponseDto(Product product){
         return ResponseProductDto.builder()

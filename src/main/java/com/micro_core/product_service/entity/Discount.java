@@ -1,5 +1,6 @@
 package com.micro_core.product_service.entity;
 
+import com.micro_core.product_service.enums.DiscountType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -28,7 +29,7 @@ public class Discount {
 
     @Column(name = "discount_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private String discountType;
+    private DiscountType discountType;
 
     @Column(name = "start_date", nullable= false)
     private LocalDateTime startDate;

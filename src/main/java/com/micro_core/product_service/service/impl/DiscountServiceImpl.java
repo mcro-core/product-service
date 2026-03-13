@@ -62,12 +62,19 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    public void deleteDiscount(Long discountID) {
+    public void deleteDiscount(Long discountId) {
 
-        Discount selectedDiscount = discountRepo.findById(discountID)
+        Discount selectedDiscount = discountRepo.findById(discountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Discount Not Found"));
         discountRepo.delete(selectedDiscount);
     }
+
+    @Override
+    public Discount getDiscount(Long discountId) {
+        return discountRepo.findById(discountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Discount not found"));
+    }
+
 
     private DiscountResponseDto mapToResponseDto(Discount discount){
 

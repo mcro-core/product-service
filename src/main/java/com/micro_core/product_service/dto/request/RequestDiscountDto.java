@@ -1,5 +1,6 @@
 package com.micro_core.product_service.dto.request;
 
+import com.micro_core.product_service.enums.DiscountType;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ public class RequestDiscountDto {
     private long ProductId;
     private String description;
     private BigDecimal discountValue;
-    private String discountType;
+    private DiscountType discountType;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private boolean isActive;
