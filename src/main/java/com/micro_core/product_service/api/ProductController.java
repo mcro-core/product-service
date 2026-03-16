@@ -1,6 +1,7 @@
 package com.micro_core.product_service.api;
 
 import com.micro_core.product_service.dto.request.RequestProductDto;
+import com.micro_core.product_service.dto.response.OrderProductResponseDto;
 import com.micro_core.product_service.dto.response.ResponseProductDto;
 import com.micro_core.product_service.service.ProductService;
 import jakarta.ws.rs.PUT;
@@ -73,6 +74,13 @@ public class ProductController {
         }else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to add discount. Please check Ids.");
         }
+    }
+
+    @GetMapping("/order-product/{productId}")
+    public ResponseEntity<OrderProductResponseDto> getOrderProductDetail(@PathVariable Long productId)
+    {
+//        return productService.getOrderProductDetails(productId);
+        return ResponseEntity.ok(productService.getOrderProductDetails(productId));
     }
 
 

@@ -2,12 +2,14 @@ package com.micro_core.product_service.service.impl;
 
 import com.micro_core.product_service.dto.request.RequestPriceHistoryDto;
 import com.micro_core.product_service.dto.request.RequestProductDto;
+import com.micro_core.product_service.dto.response.OrderProductResponseDto;
 import com.micro_core.product_service.dto.response.ResponseProductDto;
 import com.micro_core.product_service.dto.response.ResponseProductImageDto;
 import com.micro_core.product_service.entity.Discount;
 import com.micro_core.product_service.entity.Product;
 import com.micro_core.product_service.entity.ProductImages;
 import com.micro_core.product_service.enums.DiscountType;
+import com.micro_core.product_service.exceptions.ResourceNotFoundException;
 import com.micro_core.product_service.repo.ProductRepo;
 import com.micro_core.product_service.service.DiscountService;
 import com.micro_core.product_service.service.PriceHistoryService;
@@ -24,6 +26,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -134,6 +137,42 @@ public class ProductServiceImpl implements ProductService {
 
         productRepo.save(product);
         return true;
+    }
+
+    @Override
+    public OrderProductResponseDto getOrderProductDetails(Long productId) {
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        Product product = productRepo.findDetailedProductWithActiveDiscount(productId, currentDateTime)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        BigDecimal originalPrice =  product.getPrice();
+        BigDecimal discountedPrice = product.getPrice();
+        boolean hasDiscount = false;
+
+        if(product.getDiscount() != null){
+
+            BigDecimal discountValue = product.getDiscount().getDiscountValue();
+
+            if(product.getDiscount().getDiscountType() == DiscountType.FIXED){
+                discountedPrice = originalPrice.subtract(discountValue);
+            } else if (product.getDiscount().getDiscountType() == DiscountType.PERCENTAGE) {
+                discountedPrice = originalPrice.multiply(discountValue.subtract(new BigDecimal(100)));
+            }
+
+            if(discountedPrice.compareTo(BigDecimal.ZERO) < 0){
+                discountedPrice = BigDecimal.ZERO;
+            }
+            hasDiscount = true;
+        }
+
+        return OrderProductResponseDto.builder()
+                .id(product.getId())
+                .productName(product.getProductName())
+                .price(product.getPrice())
+                .hasDiscount(hasDiscount)
+                .discountedPrice(discountedPrice)
+                .build();
     }
 
     private Product findProduct(Long productId){
