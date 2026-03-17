@@ -206,6 +206,8 @@ public class ProductServiceImpl implements ProductService {
                                 .base64Image(Base64.getEncoder().encodeToString(img.getImage()))
                                 .build())
                         .collect(Collectors.toList()))
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
                 .build();
     }
 }

@@ -86,6 +86,8 @@ public class DiscountServiceImpl implements DiscountService {
                .startDate(discount.getStartDate())
                .endDate(discount.getEndDate())
                .isActive(discount.isActive())
+               .createdAt(discount.getCreatedAt())
+               .updatedAt(discount.getUpdatedAt())
                .build();
     }
 }

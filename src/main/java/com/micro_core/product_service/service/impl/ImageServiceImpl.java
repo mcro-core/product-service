@@ -1,6 +1,6 @@
 package com.micro_core.product_service.service.impl;
 
-import com.micro_core.product_service.dto.response.ResponseProductImageDto;
+
 import com.micro_core.product_service.entity.ProductImages;
 import com.micro_core.product_service.repo.ProductImageRepo;
 import com.micro_core.product_service.service.ImageService;

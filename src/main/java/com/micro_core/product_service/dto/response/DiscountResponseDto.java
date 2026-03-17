@@ -23,4 +23,6 @@ public class DiscountResponseDto {
     private LocalDateTime endDate;
     private boolean isActive;
     private List<Product> product;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
