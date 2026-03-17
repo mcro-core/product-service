@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ProductShortDetails {
     private String productName;
-    private String sku;
+    private String skuCode;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

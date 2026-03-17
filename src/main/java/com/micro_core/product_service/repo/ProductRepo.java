@@ -22,6 +22,7 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
             @Param("currentDate") LocalDateTime currentDate
     );
 
-    @Query("SELECT p.productName as productName, p.skuCode as skuCode FROM Product p WHERE p.id = :productId")
+    @Query("SELECT new com.micro_core.product_service.dto.response.ProductShortDetails(p.productName, p.skuCode, p.createdAt, p.updatedAt) " +
+            "FROM Product p WHERE p.id = :productId")
     Optional<ProductShortDetails> findShortDetailsById(@Param("productId") Long productId);
 }

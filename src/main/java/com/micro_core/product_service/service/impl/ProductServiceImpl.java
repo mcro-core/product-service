@@ -2,6 +2,7 @@ package com.micro_core.product_service.service.impl;
 
 import com.micro_core.product_service.dto.request.RequestPriceHistoryDto;
 import com.micro_core.product_service.dto.request.RequestProductDto;
+import com.micro_core.product_service.dto.request.StockRequestDto;
 import com.micro_core.product_service.dto.response.OrderProductResponseDto;
 import com.micro_core.product_service.dto.response.ProductShortDetails;
 import com.micro_core.product_service.dto.response.ResponseProductDto;
@@ -71,14 +72,16 @@ public class ProductServiceImpl implements ProductService {
         Product savedProduct =  productRepo.save(product);
         log.info("Product and {} images saves successfully!", images != null ? images.size() : 0);
 
+        StockRequestDto stockRequest = StockRequestDto.builder()
+                .productId(savedProduct.getId())
+                .quantity(requestProductDto.getQuantity())
+                .build();
+
         webClientBuilder.build().post()
-                .uri("http://inventory-service/api/v1/inventory/update-stock",
-                        uriBuilder -> uriBuilder
-                                .queryParam("skuCode", requestProductDto.getSkuCode())
-                                .queryParam("quantity", requestProductDto.getQuantity())
-                                .build())
+                .uri("http://inventory-service/api/v1/inventory/update-stock")
+                .bodyValue(List.of(stockRequest))
                 .retrieve()
-                .bodyToMono(void.class)
+                .bodyToMono(Void.class)
                 .block();
         return this.mapToResponseDto(savedProduct);
     }
@@ -125,7 +128,8 @@ public class ProductServiceImpl implements ProductService {
     public ResponseProductDto getProductById(Long productId) {
         log.info("Fetching product details for ID: {}", productId);
 
-        Product product = this.findProduct(productId);
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id" + productId));
 
         return this.mapToResponseDto(product);
     }
@@ -180,7 +184,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductShortDetails getDetailsForInventory(Long productId) {
-
         return productRepo.findShortDetailsById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
     }
@@ -204,6 +207,8 @@ public class ProductServiceImpl implements ProductService {
                         .map(img -> ResponseProductImageDto.builder()
                                 .imageId(img.getId())
                                 .base64Image(Base64.getEncoder().encodeToString(img.getImage()))
+                                .createdAt(img.getCreatedAt())
+                                .updatedAt(img.getUpdatedAt())
                                 .build())
                         .collect(Collectors.toList()))
                 .createdAt(product.getCreatedAt())
