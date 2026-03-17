@@ -1,5 +1,6 @@
 package com.micro_core.product_service.repo;
 
+import com.micro_core.product_service.dto.response.ProductShortDetails;
 import com.micro_core.product_service.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,7 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
             @Param("productId") Long productId,
             @Param("currentDate") LocalDateTime currentDate
     );
+
+    @Query("SELECT p.productName as productName, p.skuCode as skuCode FROM Product p WHERE p.id = :productId")
+    Optional<ProductShortDetails> findShortDetailsById(@Param("productId") Long productId);
 }

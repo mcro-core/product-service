@@ -2,6 +2,7 @@ package com.micro_core.product_service.service;
 
 import com.micro_core.product_service.dto.request.RequestProductDto;
 import com.micro_core.product_service.dto.response.OrderProductResponseDto;
+import com.micro_core.product_service.dto.response.ProductShortDetails;
 import com.micro_core.product_service.dto.response.ResponseProductDto;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,4 +20,5 @@ public interface ProductService {
     public ResponseProductDto getProductById(Long productId);
     public boolean addDiscountToProduct(Long productId, Long discountId);
     public OrderProductResponseDto getOrderProductDetails(Long productId);
+    public ProductShortDetails getDetailsForInventory(Long productId);
 }

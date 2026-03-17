@@ -3,6 +3,7 @@ package com.micro_core.product_service.service.impl;
 import com.micro_core.product_service.dto.request.RequestPriceHistoryDto;
 import com.micro_core.product_service.dto.request.RequestProductDto;
 import com.micro_core.product_service.dto.response.OrderProductResponseDto;
+import com.micro_core.product_service.dto.response.ProductShortDetails;
 import com.micro_core.product_service.dto.response.ResponseProductDto;
 import com.micro_core.product_service.dto.response.ResponseProductImageDto;
 import com.micro_core.product_service.entity.Discount;
@@ -30,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -169,16 +171,26 @@ public class ProductServiceImpl implements ProductService {
         return OrderProductResponseDto.builder()
                 .id(product.getId())
                 .productName(product.getProductName())
+                .sku(product.getSkuCode())
                 .price(product.getPrice())
                 .hasDiscount(hasDiscount)
                 .discountedPrice(discountedPrice)
                 .build();
     }
 
+    @Override
+    public ProductShortDetails getDetailsForInventory(Long productId) {
+
+        return productRepo.findShortDetailsById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+    }
+
+
     private Product findProduct(Long productId){
         return productRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found with id" + productId));
     }
+
 
 
     private ResponseProductDto mapToResponseDto(Product product){
